@@ -13,16 +13,53 @@ public class Main {
     static boolean xWins = false, oWins = false, draw = true;
 
     public static void main(String[] args) {
-        rysuj(3);
 
-        rysuj(1);
-        rysuj(2);
-        check();
-        game();
+
+        String[] menuArgs;
+        var scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.print("Input command: ");
+            menuArgs = scanner.nextLine().split(" ");
+            if (menuArgs[0].equals("exit")) return;
+            else if (menuArgs.length != 3) {
+                System.out.println("Bad parameters!");
+                continue;
+            }
+            else {
+                if (menuArgs[0].equals("start")) {
+                    if (menuArgs[1].equals("user") && menuArgs[2].equals("user")) {
+                        rysuj(1);
+                        rysuj(2);
+                        check();
+                        game(1);
+                        break;
+                    }
+                    else if ((menuArgs[1].equals("easy") && menuArgs[2].equals("user")) ||
+                            ((menuArgs[1].equals("user") && menuArgs[2].equals("easy")))) {
+                        rysuj(1);
+                        rysuj(2);
+                        check();
+                        game(2);
+                        break;
+                    }
+                    else if (menuArgs[1].equals("easy") && menuArgs[2].equals("easy")) {
+                        rysuj(1);
+                        rysuj(2);
+                        check();
+                        game(3);
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        //game(1);
 
     }
 
-    static void game() {
+    static void game(int gameType) {
 
         int player;
         int a = 0;
@@ -30,14 +67,15 @@ public class Main {
         if (xStarts) player = 1; //X
         else player = 2; //O
 
-        while (!endGame) {
+        if (gameType == 1) { //player vs player
+            while (!endGame) {
 
-            endGame = true;
-            if (player == 1) {
+                endGame = true;
                 System.out.print("Enter the coordinates: ");
                 var scanner = new Scanner(System.in);
 
-
+                a = 0;
+                b = 0;
                 try {
                     a = scanner.nextInt();
                     b = scanner.nextInt();
@@ -58,26 +96,95 @@ public class Main {
                     System.out.println("This cell is occupied! Choose another one!");
                     endGame = false;
                     continue;
+                } else {
+                    if (player == 1) {
+                        grid[a][b] = "X";
+                        player = 2;
+                        rysuj(2);
+                        check();
+                        continue;
+                    } else {
+                        grid[a][b] = "O";
+                        player = 1;
+                        rysuj(2);
+                        check();
+                        continue;
+                    }
                 }
-                grid[a][b] = "X";
-                player = 2;
-                rysuj(2);
-                check();
-                continue;
+
             }
-            else{
-                System.out.println("Making move level \"easy\"");
-                    compMove();
+        }
+
+        if (gameType == 2) { //player vs computer
+            while (!endGame) {
+
+                endGame = true;
+                if (player == 1) {
+                    System.out.print("Enter the coordinates: ");
+                    var scanner = new Scanner(System.in);
+
+
+                    try {
+                        a = scanner.nextInt();
+                        b = scanner.nextInt();
+                    } catch (InputMismatchException e) {
+                        String badInput = scanner.next();
+                        System.out.println("You should enter numbers!");
+                        endGame = false;
+                        continue;
+                    }
+                    if (a < 0 || a > 3 || b < 0 || b > 3) {
+                        System.out.println("Coordinates should be from 1 to 3!");
+                        endGame = false;
+                        continue;
+                    }
+
+
+                    if (!grid[a][b].equals(" ")) {
+                        System.out.println("This cell is occupied! Choose another one!");
+                        endGame = false;
+                        continue;
+                    }
+                    grid[a][b] = "X";
+                    player = 2;
+                    rysuj(2);
+                    check();
+                    continue;
+                } else {
+                    System.out.println("Making move level \"easy\"");
+                    compMove(2);
                     player = 1;
                     rysuj(2);
                     check();
                     continue;
 
+                }
+            }
+        }
+        if (gameType == 3) {
+            while (!endGame) {
+                endGame = true;
+                System.out.println("Making move level \"easy\"");
+
+                if (player == 1) {
+                    compMove(1);
+                    player = 2;
+                    rysuj(2);
+                    check();
+                    continue;
+                } else {
+                    compMove(2);
+                    player = 1;
+                    rysuj(2);
+                    check();
+                    continue;
+                }
+
             }
         }
     }
 
-    static void compMove() {
+    static void compMove(int player) {
         var random = new Random();
 
 
@@ -86,7 +193,8 @@ public class Main {
             int b = random.nextInt(4);
 
             if (grid[a][b].equals(" ")) {
-                grid[a][b] = "O";
+                if (player == 1) grid[a][b] = "X";
+                if (player == 2) grid[a][b] = "O";
                 break;
             }
             else continue;
